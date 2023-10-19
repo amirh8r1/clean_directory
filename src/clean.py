@@ -1,4 +1,5 @@
 import shutil
+import sys
 from pathlib import Path
 from typing import Union
 
@@ -53,5 +54,5 @@ class OrganizerFiles:
 
 if __name__ == "__main__":
     org_files = OrganizerFiles()
-    org_files('/home/amir/Downloads')
+    org_files(sys.argv[1])
     logger.info("Done!")
