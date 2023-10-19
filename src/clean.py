@@ -1,5 +1,6 @@
 import shutil
 from pathlib import Path
+from typing import Union
 
 from loguru import logger
 
@@ -12,24 +13,24 @@ class OrganizerFiles:
     This class is used to or organize files in a directory by
     moving files into directories based on extensions. 
     """
-    def __init__(self, directory):
-        self.directory = Path(directory)
-        if not self.directory.exists():
-            raise FileNotFoundError(f"{self.directory} dose not exist")
-
+    def __init__(self):
         ext_dirs = read_json(DATA_DIR / "extentions.json")
         self.extentions_dest = {}
         for dir_name, ext_list in ext_dirs.items():
             for ext in ext_list:
                 self.extentions_dest[ext] = dir_name
 
-    def __call__(self):
+    def __call__(self, directory: Union[str, Path]):
         """ Organize files in a directory by moving them
         to sub directories based on extension.
         """
-        logger.info(f"Organizing files in {self.directory}...")
+        directory = Path(directory)
+        if not directory.exists():
+            raise FileNotFoundError(f"{directory} dose not exist")
+
+        logger.info(f"Organizing files in {directory}...")
         file_extentions = []
-        for file_path in self.directory.iterdir():
+        for file_path in directory.iterdir():
             # ignore directories
             if file_path.is_dir():
                 continue
@@ -41,9 +42,9 @@ class OrganizerFiles:
             # move files
             file_extentions.append(file_path.suffix)
             if file_path.suffix not in self.extentions_dest:
-                DEST_DIR = self.directory / 'other'
+                DEST_DIR = directory / 'other'
             else:
-                DEST_DIR = self.directory / self.extentions_dest[file_path.suffix]
+                DEST_DIR = directory / self.extentions_dest[file_path.suffix]
 
             DEST_DIR.mkdir(exist_ok=True)
             logger.info(f"Moving {file_path} to {DEST_DIR}...")
@@ -51,6 +52,6 @@ class OrganizerFiles:
 
 
 if __name__ == "__main__":
-    org_files = OrganizerFiles('/home/amir/Downloads')
-    org_files()
+    org_files = OrganizerFiles()
+    org_files('/home/amir/Downloads')
     logger.info("Done!")
